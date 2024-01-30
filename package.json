@@ -1,0 +1,19 @@
+{
+  "name": "self-totp",
+  "module": "index.ts",
+  "type": "module",
+  "scripts": {
+    "start": "bun src/index.ts"
+  },
+  "devDependencies": {
+    "bun-types": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "base32-decode": "^1.0.0",
+    "fp-ts": "^2.16.2",
+    "jssha": "^3.3.1"
+  }
+}
