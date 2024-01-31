@@ -6,6 +6,13 @@ import * as O from "fp-ts/Option";
 import * as E from "fp-ts/Either";
 import * as TE from "fp-ts/TaskEither";
 import * as T from "fp-ts/Task";
+import { dirname, join }  from "path"
+
+const rootPath = pipe(
+    import.meta.path,
+    dirname,
+    (path) => join(path, ".."),
+  )
 
 type Config = {
   codes: Array<string>,
@@ -27,11 +34,12 @@ const value = values.code as string;
 
 
 const saveAndGetConfig = (code: string | undefined): TE.TaskEither<Error, Config> => {
+  const path = join(rootPath, "/config/code.json");
 
   const read = (): TE.TaskEither<Error, Config> => {
     return TE.tryCatch(
       () => pipe(
-        Bun.file("config/code.json"),
+        Bun.file(path),
         file => file.json<Config>()
       ),
       E.toError
@@ -48,12 +56,12 @@ const saveAndGetConfig = (code: string | undefined): TE.TaskEither<Error, Config
       TE.map(config => config.codes.at(-1) === code ? config : ({ codes: [...config.codes, code] })),
       TE.flatMap(config =>
         TE.fromTask(
-          () => Bun.write("config/code.json", JSON.stringify(config)).then(() => config),
+          () => Bun.write(path, JSON.stringify(config)).then(() => config),
         )
       ),
       TE.orElse(() =>
         TE.fromTask(
-          () => Bun.write("config/code.json", JSON.stringify(deafultConfig)).then(() => deafultConfig),
+          () => Bun.write(path, JSON.stringify(deafultConfig)).then(() => deafultConfig),
         )
       )
     )
@@ -123,4 +131,10 @@ const getTOTP = (code: string) => {
   };
 };
 
+
 console.log(JSON.stringify(getTOTP(code)))
+
+setInterval(() => {
+  console.log(JSON.stringify(getTOTP(code)))
+}, 1000)
+
